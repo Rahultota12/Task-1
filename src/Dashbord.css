@@ -1,0 +1,12 @@
+.input-box input{
+  border-radius: 20px;
+  text-align: center;
+  margin-top: 30px;
+}
+.delete-icon{
+  color: white;
+  width: 37px;
+  background-color: red;
+  margin-left: 60rem;
+  height: 52px;
+}
