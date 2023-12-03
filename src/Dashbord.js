@@ -9,6 +9,7 @@ const Dashbord = () => {
   const [tableData, setTableData] = useState([]);
   const [filterValue, setFilterValue] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
+  const [editableRow, setEditableRow] = useState(null);
 
   const fetchUser = async (url) => {
     try {
@@ -32,29 +33,42 @@ const Dashbord = () => {
   };
 
   const handleUpdate = (id) => {
-   
-    const selectedItem = tableData.find((item) => item.id == id);
+    const selectedItem = tableData.find((item) => item.id === id);
     setSelectedItem(selectedItem);
+    setEditableRow(id);
   };
 
   const handleSaveUpdate = () => {
-   
-    console.log(`Update item with name ${selectedItem.id}`);
-  
+    // Update the item in the tableData array
+    setTableData((prevData) => {
+      return prevData.map((item) => {
+        if (item.id === selectedItem.id) {
+          return selectedItem;
+        }
+        return item;
+      });
+    });
+    
     setSelectedItem(null);
+    setEditableRow(null);
   };
 
+ 
   const handleFilter = (e) => {
     const value = e.target.value;
     setFilterValue(value);
 
-    
     const filteredData = tableData.filter(
       (item) => item.name.toLowerCase().includes(value.toLowerCase()) ||
                 item.id.toString().includes(value)
     );
-
     setTableData(filteredData);
+   
+  };
+
+  const handleDelet = () => {
+    // Clear the table data array
+    setTableData([]);
   };
 
   return (
@@ -67,7 +81,7 @@ const Dashbord = () => {
           onChange={handleFilter}
         />
         <h1 className="delete-icon">
-          <MdDeleteOutline />
+          <button onClick={() => handleDelet()}><MdDeleteOutline /></button>
         </h1>
       </p>
 
@@ -87,30 +101,26 @@ const Dashbord = () => {
               <td>
                 <input type="checkbox" />
               </td>
-              <td>{item.name}</td>
-              <td>{item.email}</td>
-              <td>{item.role}</td>
+              <td>{editableRow === item.id ? <input type="text" value={selectedItem.name} onChange={(e) => setSelectedItem({ ...selectedItem, name: e.target.value })} /> : item.name}</td>
+              <td>{editableRow === item.id ? <input type="text" value={selectedItem.email} onChange={(e) => setSelectedItem({ ...selectedItem, email: e.target.value })} /> : item.email}</td>
+              <td>{editableRow === item.id ? <input type="text" value={selectedItem.role} onChange={(e) => setSelectedItem({ ...selectedItem, role: e.target.value })} /> : item.role}</td>
               <td>
-                <button onClick={() => handleUpdate(item.id)}><FaEdit /></button>
-                <button onClick={() => handleDelete(item.id)}><MdDeleteOutline style={{ color: "red" }} /></button>
+                {editableRow === item.id ? (
+                  <>
+                    <button onClick={() => handleSaveUpdate()}>Save</button>
+                    <button onClick={() => { setSelectedItem(null); setEditableRow(null); }}>Cancel</button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => handleUpdate(item.id)}><FaEdit /></button>
+                    <button onClick={() => handleDelete(item.id)}><MdDeleteOutline style={{ color: "red" }} /></button>
+                  </>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
-   
-      {selectedItem && (
-        <div>
-          <h2>Edit Details</h2>
-          <form>
-            <label>Name: </label>
-            <input type="text" value={selectedItem.id} />
-           
-            <button type="button" onClick={handleSaveUpdate}>Save</button>
-          </form>
-        </div>
-      )}
     </div>
   );
 };
